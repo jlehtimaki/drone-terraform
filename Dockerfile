@@ -1,6 +1,3 @@
-# Docker image for the Drone Terraform plugin
-#
-#     docker build -t jmccann/drone-terraform:latest .
 FROM golang:1.13-alpine AS builder
 
 RUN apk add --no-cache git
@@ -23,10 +20,11 @@ RUN apk add --no-cache \
     wget \
     coreutils \
     curl \
+    bash \
     openssh-client
 
 ARG terraform_version
-RUN wget -q https://releases.hashicorp.com/terraform/${terraform_version}/terraform_${terraform_version}_linux_amd64.zip -O terraform.zip && \
+RUN wget -q https://releases.hashicorp.com/terraform/0.12.23/terraform_0.12.23_linux_amd64.zip -O terraform.zip && \
   unzip terraform.zip -d /bin && \
   rm -f terraform.zip
 RUN wget -q https://storage.googleapis.com/kubernetes-release/release/v1.16.6/bin/linux/amd64/kubectl && \
