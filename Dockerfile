@@ -14,6 +14,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -tags netgo -o /go/bin/dro
 
 FROM alpine:3.11
 
+RUN apk add --update gettext
 RUN apk add --no-cache \
     ca-certificates \
     git \
