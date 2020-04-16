@@ -34,6 +34,7 @@ type (
 		Targets          []string
 		VarFiles         []string
 		TerraformDataDir string
+		SSHKey           string
 	}
 
 	// Netrc is credentials for cloning
@@ -101,6 +102,11 @@ func (p Plugin) Exec() error {
 
 	if p.Config.Cacert != "" {
 		commands = append(commands, installCaCert(p.Config.Cacert))
+	}
+
+	if p.Config.SSHKey != "" {
+		commands = append(commands, exec.Command("cat","~/.ssh/ir_rsa"))
+		installSSHKey(p.Config.SSHKey)
 	}
 
 	commands = append(commands, deleteCache(terraformDataDir))
@@ -376,6 +382,17 @@ func varFiles(vfs []string) []string {
 		args = append(args, fmt.Sprintf("-var-file=%s", v))
 	}
 	return args
+}
+
+func installSSHKey(sshkey string) {
+	err := os.Mkdir("~/.ssh", 0700)
+	if err != nil {
+		fmt.Printf("could not create directory: %s", err.Error())
+	}
+	err = ioutil.WriteFile("~/.ssh/id_rsa", []byte(sshkey), 0600)
+	if err != nil {
+		fmt.Printf("could not create ssh keys: %s", err.Error())
+	}
 }
 
 // helper function to write a netrc file.

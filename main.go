@@ -113,6 +113,11 @@ func main() {
 			Usage:  "changes the location where Terraform keeps its per-working-directory data, such as the current remote backend configuration",
 			EnvVar: "PLUGIN_TF_DATA_DIR",
 		},
+		cli.StringFlag{
+			Name:   "sshkey",
+			Usage:  "SSH Key to be used for getting plugins and such",
+			EnvVar: "PLUGIN_SSH_KEY",
+		},
 	}
 
 	if err := app.Run(os.Args); err != nil {
@@ -162,6 +167,7 @@ func run(c *cli.Context) error {
 			Targets:          c.StringSlice("targets"),
 			VarFiles:         c.StringSlice("var_files"),
 			TerraformDataDir: c.String("tf_data_dir"),
+			SSHKey:           c.String("sshkey"),
 		},
 		Netrc: Netrc{
 			Login:    c.String("netrc.username"),
