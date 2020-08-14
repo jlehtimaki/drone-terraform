@@ -22,6 +22,7 @@ RUN apk add --no-cache \
     coreutils \
     curl \
     bash \
+    gettext \
     openssh-client
 
 ARG terraform_version
