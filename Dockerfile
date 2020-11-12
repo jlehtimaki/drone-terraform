@@ -1,4 +1,4 @@
-FROM golang:1.13-alpine AS builder
+FROM golang:1.15-alpine AS builder
 
 # RUN apk add --no-cache git
 
@@ -12,27 +12,32 @@ COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -tags netgo -o /go/bin/drone-terraform
 
-FROM alpine:3.11
+FROM ubuntu:20.04 as executables
 
-RUN apk add --update gettext
-RUN apk add --no-cache \
-    ca-certificates \
-    git \
-    wget \
-    coreutils \
-    curl \
-    bash \
-    gettext \
-    openssh-client
+RUN apt update && apt install wget curl unzip -y
 
-ARG terraform_version
-RUN wget -q https://releases.hashicorp.com/terraform/0.12.23/terraform_0.12.23_linux_amd64.zip -O terraform.zip && \
-  unzip terraform.zip -d /bin && \
-  rm -f terraform.zip
-RUN wget -q https://storage.googleapis.com/kubernetes-release/release/v1.16.6/bin/linux/amd64/kubectl && \
-mv kubectl /bin && chmod +x /bin/kubectl
+WORKDIR /execs
+RUN wget -q https://releases.hashicorp.com/terraform/0.13.5/terraform_0.13.5_linux_amd64.zip -O terraform.zip && \
+  unzip terraform.zip
+RUN wget -q https://storage.googleapis.com/kubernetes-release/release/v1.18.10/bin/linux/amd64/kubectl && \
+chmod +x kubectl
 RUN curl -o aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.14.9/2020-01-22/bin/linux/amd64/aws-iam-authenticator && \
-mv aws-iam-authenticator /bin && chmod +x /bin/aws-iam-authenticator
+chmod +x aws-iam-authenticator
+RUN curl https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o awscliv2.zip && unzip awscliv2.zip
 
+FROM ubuntu:20.04
+
+# Install required packages
+RUN apt update && apt install -y less ca-certificates openssl openssh-client
+
+# Install AWSCLI
+COPY --from=executables /execs/aws .
+RUN ./install -b /bin
+
+# Copy executables
 COPY --from=builder /go/bin/drone-terraform /bin/
+COPY --from=executables /execs/terraform /bin/
+COPY --from=executables /execs/kubectl /bin/
+COPY --from=executables /execs/aws-iam-authenticator /bin/
+
 ENTRYPOINT ["/bin/drone-terraform"]

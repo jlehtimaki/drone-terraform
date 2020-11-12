@@ -12,4 +12,4 @@ require (
 	github.com/urfave/cli v0.0.0-20161006035353-55f715e28c46
 )
 
-go 1.13
+go 1.15
