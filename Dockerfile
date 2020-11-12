@@ -28,7 +28,7 @@ RUN curl https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o awscliv2.zi
 FROM ubuntu:20.04
 
 # Install required packages
-RUN apt update && apt install -y less ca-certificates openssl openssh-client
+RUN apt update && apt install -y less ca-certificates openssl openssh-client git
 
 # Install AWSCLI
 COPY --from=executables /execs/aws .
