@@ -14,7 +14,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -tags netgo -o /go/bin/dro
 
 FROM ubuntu:20.04 as executables
 
-RUN apt update && apt install wget curl unzip gettext-base -y
+RUN apt update && apt install wget curl unzip -y
 
 WORKDIR /execs
 RUN wget -q https://releases.hashicorp.com/terraform/0.13.5/terraform_0.13.5_linux_amd64.zip -O terraform.zip && \
@@ -28,7 +28,7 @@ RUN curl https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o awscliv2.zi
 FROM ubuntu:20.04
 
 # Install required packages
-RUN apt update && apt install -y less ca-certificates openssl openssh-client git
+RUN apt update && apt install -y less ca-certificates openssl openssh-client git gettext-base
 
 # Install AWSCLI
 COPY --from=executables /execs/aws .
